@@ -1,0 +1,20 @@
+Character movement in the world will be quite compact. As we operate in a 2d
+world there will only be 2d vectors and we have no acceleration at client, so
+we will have just 1 bit for movement velocity, however velocity can change 
+based on player view direction.
+
+Movement structure consists of next fields:
+ - Character ID
+ - Velocity 2d vector. Should be 1-length vector. TODO: Maybe sin+cos for less calculation.
+ - View 2d vector. Should be 1-length vector.
+ - Jump - 1bit. Will perform jump if not already in the air.
+ - Rotation velocity - 2 bit. Possible values:
+    1 - right rotation
+    0 - no rotation
+    -1 - left rotation
+
+ * If character stands still send 0 velocity vector.
+ * You can send 0 velocity vector with rotation velocity = 1. This will just rotate character.
+ * If you pass velocity vector and rotation velocity, the velocity vector will be treated as 
+   initial velocity and will slowly change according to rotation velocity.
+ 

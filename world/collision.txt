@@ -1,0 +1,38 @@
+One of the main features of the World is ability to handle large amount if
+characters on a single locations. The hardest part here is to manage 
+character-to-character collisions in this croud. 
+
+Rules:
+
+  * If we have 2 players, that are running one at another, they should make a 
+    little step each and run through if that is possible.
+  * If we have a line of people standing tightly shoulder to shoulder, the
+    other character running at it can not pass through.
+  * If 2 ppl are standing in front of a character he can not run through unleass
+    there is enough space behind them and the space between is at least X% (half?)
+    of character capsule.
+
+
+So basicly:
+If the character can't pass through the other he will just stop, in other cases
+he will try to dodge.
+
+Dodging is performed by leaving the capsule for other to not capture the spot,
+before we are sure the dodge is a success. If other players don't intercept the
+dodge it is a success.
+
+There exists a concept of pushing. If, and how effective it is will be 
+determined by game stats (something like str comparison). Pushing effectiveness 
+is also based on 'clustered' power of the pushing group and other factors, but
+those do not move the pushing group, rather pushing just opens space in front
+to where the group can step to.
+
+
+
+
+
+
+
+
+
+
