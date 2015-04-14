@@ -1,0 +1,17 @@
+Protocol build on top of UDP to allow fast real-time updates on player 
+positions and actions. Currently those conditions are required:
+ * Connection must be reliable and no data can be sent before connection is
+   established.
+ * Updates on player states must contain a sequence number to determine last
+   state.
+ 
+
+Implementation:
+ - Add ACK if Opcode requires it. On Client you can wait for ACK to be received
+ - On CONNECT we will pass a session_id from client to server indicating, that
+   this will be our connection. This ID will be used to trac player online 
+   status by issuing a timeout after last operation on this ID.
+ - 
+
+
+

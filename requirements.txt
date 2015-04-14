@@ -1,0 +1,5 @@
+pyglet
+flake8
+nose
+coverage
+msgpack-python
