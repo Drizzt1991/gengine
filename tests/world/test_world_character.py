@@ -1,3 +1,4 @@
+import asyncio
 from unittest import mock
 from gengine.testutil import AsyncTestCase
 from gengine.world import World, Character
@@ -8,7 +9,10 @@ class TestWorldMovement(AsyncTestCase):
 
     def setUp(self):
         super().setUp()
-        self.world = World(loop=self.loop)
+        self.world = World(loop=self.loop, timestamp=0)
+
+    def tearDown(self):
+        self.world.close()
 
     @mock.patch("gengine.world.World.notify")
     def test_character_load(self, patched):
@@ -25,8 +29,8 @@ class TestWorldMovement(AsyncTestCase):
             "`World.notify` was not called on character load")
 
         self.assertEqual(
-            patched.call_args, ((), dict(
-                affects=[character.character_id],
+            tuple(patched.call_args), ((), dict(
+                affects=[character],
                 event="character_load",
                 character=character,
                 timestamp=load_time
@@ -45,25 +49,54 @@ class TestWorldMovement(AsyncTestCase):
             "`World.notify` was not called on 2nd character load")
 
         self.assertEqual(
-            patched.call_args, ((), dict(
-                affects=[another_character.character_id,
-                         character.character_id],
+            tuple(patched.call_args), ((), dict(
+                affects=[another_character,
+                         character],
                 event="character_load",
-                character=character,
+                character=another_character,
                 timestamp=load_time
                 )))
 
-    def test_character_movement(self):
+    @mock.patch("gengine.world.World.notify")
+    def test_character_passive_movement(self, patched):
         character = Character(
             character_id=1,
             initial_position=Vector2D(0, 0),
             initial_viewport=Vector2D(0, 1))
         self.world.load_character(character, timestamp=0)
-        character.update(
+
+        self.world.update_character(
+            character,
             velocity=Vector2D(1, 1),
             viewport=Vector2D.from_deg(45),
             timestamp=0)
-        self.world.process_till(100)
+
+        self.loop.run_until_complete(asyncio.sleep(0.1, loop=self.loop))
+
+        self.assertEqual(
+            patched.call_count, 2,
+            "`World.notify` was not called on character passive move")
+
+        self.assertEqual(
+            tuple(patched.call_args), ((), dict(
+                affects=[character],
+                event="character_move",
+                character=character,
+                timestamp=0
+                )))
+
+        self.loop.run_until_complete(asyncio.sleep(1, loop=self.loop))
+        self.assertEqual(
+            patched.call_count, 3,
+            "`World.notify` was not called on character passive move")
+
+        self.assertEqual(
+            tuple(patched.call_args), ((), dict(
+                affects=[character],
+                event="character_move",
+                character=character,
+                timestamp=1
+                )))
         self.assertEqual(
             character.position,
-            Vector2D(100, 100))
+            Vector2D(1, 1))

@@ -3,6 +3,7 @@ from unittest import TestCase
 
 
 class AsyncTestCase(TestCase):
+    maxDiff = None
 
     def setUp(self):
         # We want explicit loops

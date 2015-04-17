@@ -21,7 +21,7 @@ class Vector2D(namedtuple('Vector2D', ('x', 'y'))):
         return type(self)(self.x / other, self.y / other)
 
     def __bool__(self):
-        return self.x == 0 and self.y == 0
+        return not (self.x == 0 and self.y == 0)
 
     def dot_product(self, other):
         return self.x * other.x + self.y * other.y
