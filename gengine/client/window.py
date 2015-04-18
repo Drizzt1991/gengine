@@ -17,8 +17,7 @@ from pyglet.gl import (
     GL_MODELVIEW,
     GL_LINES
     )
-
-from gengine.vector import Vector2D
+from planar import Vec2
 
 COLLISION_RADIUS = 3
 
@@ -42,7 +41,7 @@ class GameWindow(pyglet.window.Window):
     def _tick_viewport(self, dt):
         character = self._world._characters[0]
         ang = random.random() * math.pi
-        viewport = Vector2D(math.cos(ang), math.sin(ang))
+        viewport = Vec2(math.cos(ang), math.sin(ang))
         character.update(viewport=viewport)
 
     def _tick(self, dt):

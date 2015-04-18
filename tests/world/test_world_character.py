@@ -1,8 +1,9 @@
 import asyncio
 from unittest import mock
+from planar import Vec2
+
 from gengine.testutil import AsyncTestCase
 from gengine.world import World, Character
-from gengine.vector import Vector2D
 
 
 class TestWorldMovement(AsyncTestCase):
@@ -18,8 +19,8 @@ class TestWorldMovement(AsyncTestCase):
     def test_character_load(self, patched):
         character = Character(
             character_id=1,
-            initial_position=Vector2D(0, 0),
-            initial_viewport=Vector2D(0, 1))
+            initial_position=Vec2(0, 0),
+            initial_viewport=Vec2(0, 1))
         # We have a static character in position (0, 0)
         load_time = 10
         self.world.load_character(character, timestamp=10)
@@ -40,8 +41,8 @@ class TestWorldMovement(AsyncTestCase):
         # event
         another_character = Character(
             character_id=2,
-            initial_position=Vector2D(0, 10),
-            initial_viewport=Vector2D(0, 1))
+            initial_position=Vec2(0, 10),
+            initial_viewport=Vec2(0, 1))
         self.world.load_character(another_character, timestamp=10)
 
         self.assertEqual(
@@ -61,14 +62,14 @@ class TestWorldMovement(AsyncTestCase):
     def test_character_passive_movement(self, patched):
         character = Character(
             character_id=1,
-            initial_position=Vector2D(0, 0),
-            initial_viewport=Vector2D(0, 1))
+            initial_position=Vec2(0, 0),
+            initial_viewport=Vec2(0, 1))
         self.world.load_character(character, timestamp=0)
 
         self.world.update_character(
             character,
-            velocity=Vector2D(1, 1),
-            viewport=Vector2D.from_deg(45),
+            velocity=Vec2(1, 1),
+            viewport=Vec2.polar(angle=45, length=1),
             timestamp=0)
 
         self.loop.run_until_complete(asyncio.sleep(0.1, loop=self.loop))
@@ -99,4 +100,4 @@ class TestWorldMovement(AsyncTestCase):
                 )))
         self.assertEqual(
             character.position,
-            Vector2D(1, 1))
+            Vec2(1, 1))

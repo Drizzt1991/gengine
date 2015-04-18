@@ -2,7 +2,7 @@ import asyncio
 # from gengine.world.character import Character
 from gengine.world.shape import SimpleObjectIndex
 from heapq import heappop, heappush
-# from gengine.vector import Vector2D
+# from gengine.vector import Vec2
 
 NEARBY_RADIUS = 20
 COMPONENT_SCHEDULE_AHEAD = 1

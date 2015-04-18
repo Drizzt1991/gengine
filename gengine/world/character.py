@@ -1,4 +1,4 @@
-from gengine.vector import Vector2D
+from planar import Vec2
 from gengine.world.actor import Actor
 
 DEFAULT_JUMP_DURATION = 3  # Jump takes 3 seconds
@@ -15,7 +15,7 @@ class Character(Actor):
 
         self.position = initial_position
         self.viewport = initial_viewport
-        self.velocity = Vector2D(0, 0)
+        self.velocity = Vec2(0, 0)
         # self._jump_duration = 0
         # self._movement_gen = self._movement_generator()
         # self._pending_events = []
