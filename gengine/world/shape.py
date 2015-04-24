@@ -52,3 +52,6 @@ class Circle(Geometry):
                     self.radius + other.radius)
         else:
             raise NotImplementedError()
+
+    def get_bbox(self):
+        return
