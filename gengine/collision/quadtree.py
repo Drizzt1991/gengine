@@ -31,18 +31,6 @@ class _QuadNode:
             return (self._nw, self._ne, self._se, self._sw)
         return ()
 
-    def clear(self):
-        # Clear all children
-        for node in self.nodes:
-            node.clear()
-        # Clear itself then
-        self._objects.clear()
-        # Clear nodes if we had any
-        self._nw = None
-        self._sw = None
-        self._ne = None
-        self._se = None
-
     def split(self):
         level = self._level
         if self._nw is not None:
@@ -75,6 +63,23 @@ class _QuadNode:
             bbox=BoundingBox([Vec2(c_x, min_y), Vec2(max_x, c_y)]),
             level=new_level)
 
+    def get_all_objects(self):
+        yield from self._objects
+        for node in self.nodes:
+            yield from node.get_all_objects()
+
+    def clear(self):
+        # Clear all children
+        for node in self.nodes:
+            node.clear()
+        # Clear itself then
+        self._objects.clear()
+        # Clear nodes if we had any
+        self._nw = None
+        self._sw = None
+        self._ne = None
+        self._se = None
+
     def insert(self, bbox, obj):
         # FIXME: We probably can lower the intersection and contains checks.
 
@@ -96,10 +101,27 @@ class _QuadNode:
         for node in self.nodes:
             node.insert(bbox, obj)
 
-    def get_all_objects(self):
-        yield from self._objects
+    def remove(self, remove_obj):
+        to_remove = None
+        for pair in self._objects:
+            _, (_, obj) = pair
+            if obj is remove_obj:
+                to_remove = pair
+                # Not like we can insert more than 1 obj.
+                break
+        if to_remove is not None:
+            self._objects.remove(to_remove)
+        empty = True
         for node in self.nodes:
-            yield from node.get_all_objects()
+            # Remove call will return True if this was the last object
+            empty = empty and node.remove(remove_obj)
+        if empty:
+            self._nw = None
+            self._sw = None
+            self._ne = None
+            self._se = None
+            return not self._objects
+        return False
 
     def query(self, bbox):
         # FIXME: When querying we can take height and width to produce a binary
@@ -142,7 +164,7 @@ class QuadTree:
         bbox = shape.bounding_box
         self._root.insert(bbox, (shape, obj))
 
-    def _query(self, query_shape):
+    def query_iter(self, query_shape):
         bbox = query_shape.bounding_box
         assert isinstance(bbox, BoundingBox)
         _seen = set([])
@@ -154,4 +176,11 @@ class QuadTree:
                 yield obj
 
     def query(self, query_shape):
-        return list(self._query(query_shape))
+        return list(self.query_iter(query_shape))
+
+    def remove(self, obj):
+        self._root.remove(obj)
+
+    def update(self, shape, obj):
+        self.remove(obj)
+        self.insert(shape, obj)

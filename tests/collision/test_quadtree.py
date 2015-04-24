@@ -192,3 +192,41 @@ class TestQuadTree(TestCase):
                 ]},
             ]
         })
+
+    def test_remove(self):
+        # In [(0, 0), (10, 10)] quadrant
+        bbox = BoundingBox([Vec2(1, 1), Vec2(4, 4)])
+        self.tree.insert(bbox, bbox)
+        self.tree.remove(bbox)
+
+        self.assertEqual(self._get_nodes_data(self.tree), {
+            "level": 0})
+
+    def test_update(self):
+        obj = object()
+        # In [(-10, -10), (0, 0)] quadrant
+        bbox = BoundingBox([Vec2(-3, -3), Vec2(-1, -1)])
+        self.tree.insert(bbox, obj)
+
+        # In [(0, 0), (10, 10)] quadrant
+        new_bbox = BoundingBox([Vec2(1, 1), Vec2(4, 4)])
+        self.tree.update(new_bbox, obj)
+
+        self.assertEqual(self._get_nodes_data(self.tree), {
+            "level": 0, "nodes": [
+                {"level": 1},
+                {"level": 1, "nodes": [
+                    {"level": 2},
+                    {"level": 2},
+                    {"level": 2},
+                    {"level": 2, "nodes": [
+                        {"level": 3},
+                        {"level": 3},
+                        {"level": 3},
+                        {"level": 3, "objects": [obj]}
+                    ]},
+                ]},
+                {"level": 1},
+                {"level": 1},
+            ]
+        })
