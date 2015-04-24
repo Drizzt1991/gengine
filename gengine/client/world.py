@@ -1,4 +1,4 @@
-from gengine.vector import Vector2D
+from planar import Vec2
 
 
 class CharacterView:
@@ -18,5 +18,5 @@ class WorldView:
 
     def __init__(self):
         self._characters = [
-            CharacterView(Vector2D(200, 200), Vector2D(0, 0))
+            CharacterView(Vec2(200, 200), Vec2(0, 0))
         ]

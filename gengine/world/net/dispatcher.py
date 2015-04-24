@@ -1,5 +1,5 @@
 from gengine.protocol.packet import OPCODES, pack_error
-from gengine.vector import Vector2D
+from planar import Vec2
 
 
 class ValidationError(Exception):
@@ -29,8 +29,8 @@ class Dispatcher:
 
     def handle_character_movement(self, packet):
         character = self.world.get_character(packet.character_id)
-        velocity = Vector2D(packet.velocity_x, packet.velocity_y)
-        viewport = Vector2D(packet.velocity_x, packet.velocity_y)
+        velocity = Vec2(packet.velocity_x, packet.velocity_y)
+        viewport = Vec2(packet.velocity_x, packet.velocity_y)
         if packet.rotation not in [-1, 0, 1]:
             raise ValidationError(
                 fields={
