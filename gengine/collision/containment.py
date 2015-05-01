@@ -1,6 +1,6 @@
 from planar import Vec2
 
-from .shapes import Circle, BoundingBox
+from .shapes import Circle, BoundingBox, Polygon
 
 
 def bbox_contains_circle(bbox, circle):
@@ -54,11 +54,31 @@ def bbox_contains_bbox(bbox, other):
     )
 
 
+def polygon_contains_bbox(polygon, bbox):
+    pol2 = bbox.to_polygon()
+    return polygon_contains_polygon(polygon, pol2)
+
+
+def bbox_contains_polygon(bbox, polygon):
+    pol2 = bbox.to_polygon()
+    return polygon_contains_polygon(pol2, polygon)
+
+
+def polygon_contains_polygon(polygon, other):
+    for point in other:
+        if not polygon.contains_point(point):
+            return False
+    return True
+
+
 _registry = {
     (Circle, BoundingBox): circle_contains_bbox,
     (BoundingBox, Circle): bbox_contains_circle,
     (Circle, Circle): circle_contains_circle,
-    (BoundingBox, BoundingBox): bbox_contains_bbox
+    (BoundingBox, BoundingBox): bbox_contains_bbox,
+    (Polygon, BoundingBox): polygon_contains_bbox,
+    (BoundingBox, Polygon): bbox_contains_polygon,
+    (Polygon, Polygon): polygon_contains_polygon,
 }
 
 

@@ -1,6 +1,16 @@
 import abc
 from gengine.utils import lazy_property
 from planar import BoundingBox as OriginalBBox, Vec2
+from planar.line import LineSegment as OriginalLineSegment
+from planar.polygon import Polygon as OriginalPolygon  # Segfault on C impl =(.
+
+
+__all__ = [
+    "Shape",
+    "LineSegment",
+    "BoundingBox",
+    "Circle"
+]
 
 
 class Shape:
@@ -24,7 +34,13 @@ class Shape:
 
 
 class BoundingBox(OriginalBBox, Shape):
-    pass
+
+    def to_polygon(self):
+        min_bbox, max_bbox = self.min_point, self.max_point
+        return Polygon([
+            min_bbox, (min_bbox.x, max_bbox.y),
+            max_bbox, (max_bbox.x, min_bbox.y)],
+            is_convex=True)
 
 
 class Circle(Shape):
@@ -50,3 +66,27 @@ class Circle(Shape):
             self.center.x, self.center.y, self.radius)
 
     __str__ = __repr__
+
+
+class LineSegment(OriginalLineSegment, Shape):
+
+    @lazy_property
+    def bounding_box(self):
+        return BoundingBox(self.points)
+
+
+class Polygon(OriginalPolygon, Shape):
+
+    def iter_edges(self):
+        for i in range(len(self)):
+            yield LineSegment.from_points([self[i], self[i - 1]])
+
+    def project(self, vector):
+        min_point = max_point = vector.dot(self[0])
+        for vertice in self:
+            x = vector.dot(vertice)
+            if x < min_point:
+                min_point = x
+            if x > max_point:
+                max_point = x
+        return min_point, max_point

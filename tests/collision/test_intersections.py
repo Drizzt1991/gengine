@@ -1,7 +1,8 @@
 from unittest import TestCase, skip
 
 from planar import Vec2
-from gengine.collision import Circle, BoundingBox, intersects, contains
+from gengine.collision import Circle, BoundingBox, intersects, contains, \
+    Polygon
 
 
 class TestBBoxToCircle(TestCase):
@@ -47,7 +48,7 @@ class TestBBoxToCircle(TestCase):
         self.assertFalse(intersects(c, r))
         self.assertTrue(intersects(c, r, border=True))
 
-    @skip("contains_point does not work on 0-size polygon")
+    @skip("contains_point does not work on 0-size bbox")
     def test_circle_in_bbox_border(self):
         # contains have no need for `border` attributes. It always includes
         # border points.
@@ -136,3 +137,77 @@ class TestCircleToCircle(TestCase):
         self.assertTrue(intersects(c1, c2, border=True))
         self.assertFalse(contains(c1, c2))
         self.assertFalse(contains(c2, c1))
+
+
+class TestPolygonBBox(TestCase):
+
+    def test_no_intersection(self):
+        bbox = BoundingBox([Vec2(0, 0), Vec2(2, 2)])
+        pol = Polygon([Vec2(5, 5), Vec2(3, 4), Vec2(7, 5)])
+        self.assertFalse(intersects(bbox, pol))
+        self.assertFalse(contains(bbox, pol))
+        self.assertFalse(contains(pol, bbox))
+
+    def test_pol_in_bbox(self):
+        bbox = BoundingBox([Vec2(0, 0), Vec2(5, 5)])
+        pol = Polygon([Vec2(3, 4), Vec2(2, 1), Vec2(3, 2)])
+        self.assertTrue(intersects(bbox, pol))
+        self.assertTrue(contains(bbox, pol))
+        self.assertFalse(contains(pol, bbox))
+
+    def test_bbox_in_pol(self):
+        bbox = BoundingBox([Vec2(0, 0), Vec2(2, 2)])
+        pol = Polygon([
+            Vec2(-1, -1), Vec2(-1, 5), Vec2(5, 5), Vec2(7, 4), Vec2(3, -1)])
+        self.assertTrue(intersects(bbox, pol))
+        self.assertTrue(contains(pol, bbox))
+        self.assertFalse(contains(bbox, pol))
+
+    def test_intersection(self):
+        bbox = BoundingBox([Vec2(0, 0), Vec2(2, 2)])
+        pol = Polygon([
+            Vec2(1, 1), Vec2(3, 1), Vec2(1, 3)])
+        self.assertTrue(intersects(bbox, pol))
+        self.assertFalse(contains(pol, bbox))
+        self.assertFalse(contains(bbox, pol))
+
+    def test_border_intersection(self):
+        bbox = BoundingBox([Vec2(0, 0), Vec2(2, 2)])
+        pol = Polygon([
+            Vec2(0, 0), Vec2(1, 0), Vec2(1, -2)])
+        self.assertFalse(intersects(bbox, pol))
+        self.assertTrue(intersects(bbox, pol, border=True))
+        self.assertFalse(contains(pol, bbox))
+        self.assertFalse(contains(bbox, pol))
+
+
+class TestPolygonPolygon(TestCase):
+
+    def test_no_intersection(self):
+        pol1 = Polygon([Vec2(0, 0), Vec2(0, 2), Vec2(2, 2)])
+        pol2 = Polygon([Vec2(5, 5), Vec2(3, 4), Vec2(7, 5)])
+        self.assertFalse(intersects(pol1, pol2))
+        self.assertFalse(contains(pol1, pol2))
+        self.assertFalse(contains(pol1, pol2))
+
+    def test_contains(self):
+        pol1 = Polygon([Vec2(0, 0), Vec2(0, 10), Vec2(7, 8), Vec2(4, 0)])
+        pol2 = Polygon([Vec2(2, 2), Vec2(1, 2), Vec2(2, 1)])
+        self.assertTrue(intersects(pol1, pol2))
+        self.assertTrue(contains(pol1, pol2))
+        self.assertFalse(contains(pol2, pol1))
+
+    def test_intersection(self):
+        pol1 = Polygon([Vec2(0, 0), Vec2(0, 2), Vec2(2, 2)])
+        pol2 = Polygon([Vec2(2, 2), Vec2(2, 1), Vec2(1, 2)])
+        self.assertTrue(intersects(pol1, pol2))
+        self.assertFalse(contains(pol1, pol2))
+        self.assertFalse(contains(pol1, pol2))
+
+    def test_border_intersection(self):
+        pol1 = Polygon([Vec2(0, 0), Vec2(0, 2), Vec2(2, 2)])
+        pol2 = Polygon([Vec2(2, 2), Vec2(1, 1), Vec2(2, 0)])
+        self.assertFalse(intersects(pol1, pol2))
+        self.assertTrue(intersects(pol1, pol2, border=True))
+        self.assertFalse(contains(pol1, pol2))
+        self.assertFalse(contains(pol1, pol2))

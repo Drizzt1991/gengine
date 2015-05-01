@@ -1,4 +1,4 @@
-from .shapes import Circle, BoundingBox
+from .shapes import Circle, BoundingBox, Polygon
 from .intersection import intersects
 from .containment import contains
 from .quadtree import QuadTree
@@ -9,5 +9,6 @@ __all__ = [
     "BoundingBox",
     "intersects",
     "contains",
-    "QuadTree"
+    "QuadTree",
+    "Polygon"
     ]
