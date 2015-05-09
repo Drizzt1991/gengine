@@ -42,6 +42,7 @@ args = dict(
         'console_scripts': [
             'gengine-client = gengine.client.client:main',
             'gengine-server = gengine.world.server:main',
+            'gengine-asteroid = gengine.examples.asteroids.main:main',
         ],
     }
     )
